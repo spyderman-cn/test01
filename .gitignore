@@ -1,0 +1,7 @@
+# 本地生成物
+release/
+web/.tmp/
+web/.shots/
+web/dist/
+web/node_modules/
+*.local

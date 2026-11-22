@@ -1,0 +1,8 @@
+services:
+  web:
+    build: .
+    image: campus-market-web:1.0.0
+    container_name: campus-market-web
+    ports:
+      - '8080:80'
+    restart: unless-stopped

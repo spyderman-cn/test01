@@ -25,20 +25,43 @@ npm run preview      # 预览 dist/
 
 ```bash
 npm run build          # 产物在 dist/，约 1.7 MB
-npm run preview        # 本地预览生产构建 http://localhost:4173
 ```
 
-- **静态托管**：用 [`nginx.conf`](nginx.conf) 替换 `/etc/nginx/conf.d/default.conf`，root 指向 `dist/` 上传后的目录。已配置 gzip、`/assets/` 一年强缓存、`index.html` 不缓存、SPA 回退、`/v1` 反向代理模板、`/healthz`。
-- **容器部署**：用 [`Dockerfile`](Dockerfile)（多阶段：Node 构建 → `nginx:alpine` 托管）。
+### 方式一：本机 nginx（Windows，已在本机跑通）
 
-  ```bash
-  docker build -t campus-market-web .
-  docker run -d -p 8080:80 campus-market-web   # 打开 http://localhost:8080
-  ```
+本机路径约定：nginx 解压到 `D:\nginx-web\nginx-1.27.4`，静态文件放 `D:\nginx-web\html`。
 
-- 路由是 **hash 模式**（`/#/products`），所以不需要服务端重写就能直接托管；如果以后换成 history 模式，nginx 的 `try_files $uri $uri/ /index.html` 已经兜住了。
+```powershell
+# 1. 下载并解压 nginx for Windows（https://nginx.org/download/nginx-1.27.4.zip）
+# 2. 把构建产物拷过去
+Copy-Item dist\* D:\nginx-web\html -Recurse -Force
+# 3. 用 web/nginx.conf 覆盖 conf\nginx.conf，注意 root 改成 D:/nginx-web/html
+# 4. 启动 / 重载 / 停止
+D:\nginx-web\nginx-1.27.4\nginx.exe -p D:/nginx-web/nginx-1.27.4/ -c conf/nginx.conf
+D:\nginx-web\nginx-1.27.4\nginx.exe -p D:/nginx-web/nginx-1.27.4/ -c conf/nginx.conf -s reload
+D:\nginx-web\nginx-1.27.4\nginx.exe -p D:/nginx-web/nginx-1.27.4/ -c conf/nginx.conf -s stop
+```
 
-> 开发时用 `npm run dev`（Vite，带热更新与按需编译），部署时才用 nginx 托管 `dist/`，两者不冲突。
+访问 <http://localhost:8080>，`/healthz` 返回 `ok`。改前端后重新 `npm run build` + 覆盖 `html` + `-s reload` 即可。
+
+### 方式二：Docker
+
+```bash
+docker build -t campus-market-web .
+docker run -d -p 8080:80 --name campus-market-web campus-market-web
+# 或者
+docker compose up -d --build
+```
+
+镜像为多阶段构建：Node 打包 → `nginx:alpine` 托管，配置见 [`Dockerfile`](Dockerfile) 与 [`docker-compose.yml`](docker-compose.yml)。
+
+### 方式三：Linux 服务器
+
+`dist/` 上传到 `/usr/share/nginx/html`，[`nginx.conf`](nginx.conf) 放到 `/etc/nginx/conf.d/campus-market.conf`，`nginx -t && systemctl reload nginx`。
+
+> 已配置：gzip、`/assets/` 一年强缓存、`index.html` 不缓存、SPA 回退、`/v1` 反向代理模板、`/healthz`。
+> 路由是 **hash 模式**（`/#/products`），不依赖服务端重写；若以后改 history 模式，`try_files $uri $uri/ /index.html` 已兜住。
+> 开发用 `npm run dev`（Vite，热更新），部署用 nginx 托管 `dist/`，两者不冲突。
 
 ## 功能
 

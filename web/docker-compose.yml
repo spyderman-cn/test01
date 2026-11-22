@@ -1,0 +1,12 @@
+# 一键启动：docker compose up -d --build
+# 访问：http://localhost:8080
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: campus-market-web:latest
+    container_name: campus-market-web
+    ports:
+      - '8080:80'
+    restart: unless-stopped

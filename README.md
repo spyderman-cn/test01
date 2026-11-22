@@ -1,24 +1,58 @@
-# test01
+# 校集 · 校园二手交易平台
 
-校园二手交易平台 —— 项目文档。
+一个校内二手交易平台的完整项目：接口文档 + OpenAPI 规范 + Vue 3 前端（自带演示数据，无需后端即可运行）。
 
-## 文档
+![首页](docs/screenshots/home.png)
 
-- [接口文档（v1.0.0）](docs/校园二手交易平台接口文档.md) —— 人类阅读版，含业务流程、状态机、错误码与数据模型
-- [OpenAPI 3.0 规范](docs/openapi.json) —— 机器可读，用于 Apifox / Swagger UI / Postman 导入
+## 目录
 
-## 在 Apifox 中导入
+| 目录 | 内容 |
+|---|---|
+| [`web/`](web/README.md) | Vue 3 + Vite + Element Plus 前端，内置 mock，可独立运行 |
+| [`docs/校园二手交易平台接口文档.md`](docs/校园二手交易平台接口文档.md) | 接口文档：通用规范、14 个模块、错误码、状态机、数据模型 |
+| [`docs/openapi.json`](docs/openapi.json) | OpenAPI 3.0 规范，供 Apifox / Swagger UI / Postman 导入 |
+| [`docs/screenshots/`](docs/screenshots) | 页面截图 |
+| [`scripts/`](scripts) | OpenAPI 生成与校验脚本 |
 
-1. Apifox → 项目设置 → 导入数据 → **OpenAPI / Swagger**。
-2. 选择「文件导入」，选 `docs/openapi.json`；或选择「URL 导入」，填仓库的 raw 地址：
-   `https://raw.githubusercontent.com/spyderman-cn/test01/main/docs/openapi.json`
-3. 导入后按 tag 自动生成 14 个目录、75 个接口；环境变量取自 `servers`（生产 / 测试 / 开发）。
-
-## 修改接口后重新生成
-
-规范由脚本生成，避免手写 JSON 出错：
+## 快速开始（前端）
 
 ```bash
-node scripts/build-openapi.mjs        # 生成 docs/openapi.json
-node scripts/validate-openapi.mjs     # 校验 $ref、operationId、路径参数等
+cd web
+npm install
+npm run dev
 ```
+
+打开 <http://localhost:5173>，用演示账号 `13800001234` / 任意密码登录（登录页也可一键体验）。
+
+功能覆盖：浏览筛选、商品详情、发布闲置、下单支付、发货/确认收货、退款、评价、站内聊天、学生认证、我的商品/收藏/浏览历史、通知。
+
+## 接口文档
+
+- 人类阅读版：[docs/校园二手交易平台接口文档.md](docs/校园二手交易平台接口文档.md)
+- 机器可读版：[docs/openapi.json](docs/openapi.json)
+
+在 Apifox 中导入：项目设置 → 导入数据 → **OpenAPI / Swagger** → 选文件，或直接用 raw 地址：
+
+```
+https://raw.githubusercontent.com/spyderman-cn/test01/main/docs/openapi.json
+```
+
+修改接口后重新生成并校验：
+
+```bash
+node scripts/build-openapi.mjs
+node scripts/validate-openapi.mjs
+```
+
+## 技术栈
+
+**前端**：Vue 3（`<script setup>`）、Vue Router、Pinia、Element Plus、Axios、Vite
+**演示数据**：浏览器 localStorage + axios 自定义 adapter，前端零后端依赖
+
+![商品详情](docs/screenshots/product-detail.png)
+
+## 说明
+
+- 演示数据仅保存在本机浏览器，可随时在「个人中心 → 账号设置」重置。
+- 前端接口层与接口文档一一对应，关闭 mock 并把 `VITE_API_BASE` 指向真实后端即可联调，详见 [web/README.md](web/README.md)。
+- 项目为教学/演示用途，支付、实名认证等均为模拟实现。

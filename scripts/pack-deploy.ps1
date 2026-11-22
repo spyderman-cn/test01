@@ -38,4 +38,23 @@ try {
 
 $size = (Get-Item $tarball).Length / 1MB
 Write-Host ("已生成 {0}（{1:N2} MB）" -f $tarball, $size)
+
+# 同时生成 zip（条目使用 / 分隔，Linux unzip 与 Windows 资源管理器都能正常解压）
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$zipPath = Join-Path $root 'release\campus-web.zip'
+if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+$zip = [System.IO.Compression.ZipFile]::Open($zipPath, 'Create')
+try {
+    foreach ($file in Get-ChildItem $stage -Recurse -File) {
+        $rel = $file.FullName.Substring($stage.Length + 1).Replace('\', '/')
+        [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+            $zip, $file.FullName, "campus-web/$rel",
+            [System.IO.Compression.CompressionLevel]::Optimal)
+    }
+} finally {
+    $zip.Dispose()
+}
+Write-Host ("已生成 {0}（{1:N2} MB）" -f $zipPath, ((Get-Item $zipPath).Length / 1MB))
 Write-Host '虚拟机：tar -xzf campus-web.tar.gz && cd campus-web && docker compose up -d --build'
+Write-Host '或上传 zip：unzip campus-web.zip && cd campus-web && docker compose up -d --build'

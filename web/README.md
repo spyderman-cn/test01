@@ -21,6 +21,25 @@ npm run preview      # 预览 dist/
 
 > 演示账号：`13800001234` / 任意密码（登录页有「一键体验登录」）。
 
+## 生产部署（nginx）
+
+```bash
+npm run build          # 产物在 dist/，约 1.7 MB
+npm run preview        # 本地预览生产构建 http://localhost:4173
+```
+
+- **静态托管**：用 [`nginx.conf`](nginx.conf) 替换 `/etc/nginx/conf.d/default.conf`，root 指向 `dist/` 上传后的目录。已配置 gzip、`/assets/` 一年强缓存、`index.html` 不缓存、SPA 回退、`/v1` 反向代理模板、`/healthz`。
+- **容器部署**：用 [`Dockerfile`](Dockerfile)（多阶段：Node 构建 → `nginx:alpine` 托管）。
+
+  ```bash
+  docker build -t campus-market-web .
+  docker run -d -p 8080:80 campus-market-web   # 打开 http://localhost:8080
+  ```
+
+- 路由是 **hash 模式**（`/#/products`），所以不需要服务端重写就能直接托管；如果以后换成 history 模式，nginx 的 `try_files $uri $uri/ /index.html` 已经兜住了。
+
+> 开发时用 `npm run dev`（Vite，带热更新与按需编译），部署时才用 nginx 托管 `dist/`，两者不冲突。
+
 ## 功能
 
 | 模块 | 内容 |

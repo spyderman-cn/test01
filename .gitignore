@@ -5,3 +5,5 @@ web/.shots/
 web/dist/
 web/node_modules/
 *.local
+*.tar.gz
+campus-web.zip

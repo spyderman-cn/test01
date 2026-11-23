@@ -122,3 +122,42 @@ sudo ss -lntp | grep 8080
 **想改成后端联调**
 
 `nginx.conf` 里已留 `location /v1/ { proxy_pass ... }` 的注释模板，取消注释、改成后端地址，重新 `docker compose up -d --build`；同时把前端构建时的 `VITE_USE_MOCK` 设为 `false`。
+
+## 9. 两目录布局：html + conf（自行挂载 / COPY）
+
+另外提供拆分好的 `campus-web-mount.tar.gz`，顶层就是两个目录：
+
+```
+html/                # 静态文件，挂到 /usr/share/nginx/html
+├── index.html
+└── assets/
+conf/
+└── nginx.conf       # server{} 配置，挂到 /etc/nginx/conf.d/default.conf
+```
+
+**运行时挂载：**
+
+```bash
+docker run -d --name campus-web -p 8080:80 \
+  -v /opt/campus-web/html:/usr/share/nginx/html:ro \
+  -v /opt/campus-web/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro \
+  --restart unless-stopped nginx:1.27-alpine
+```
+
+**构建时 COPY：**
+
+```dockerfile
+FROM nginx:1.27-alpine
+COPY conf/nginx.conf /etc/nginx/conf.d/default.conf
+COPY html/ /usr/share/nginx/html
+```
+
+注意：`nginx.conf` 里是 `server { }` 块，被主配置 `include conf.d/*.conf` 引入，所以目标路径必须是 `/etc/nginx/conf.d/default.conf`，不要覆盖 `/etc/nginx/nginx.conf`。
+
+SELinux（CentOS / RHEL）挂载要加 `:z`：
+
+```bash
+-v /opt/campus-web/html:/usr/share/nginx/html:ro,z
+```
+
+更新：替换 `html/` 内容后 `docker restart campus-web`（挂载方式）或重新 `docker build`（COPY 方式）。

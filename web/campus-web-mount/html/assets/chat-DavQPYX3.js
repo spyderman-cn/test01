@@ -1,0 +1,1 @@
+import{h as t}from"./index-BZL2uufX.js";const a=s=>t.get("/conversations",{params:s}),n=s=>t.post("/conversations",s),r=(s,o)=>t.get(`/conversations/${s}/messages`,{params:o}),c=(s,o)=>t.post(`/conversations/${s}/messages`,o),i=(s,o)=>t.post(`/conversations/${s}/read`,o);export{a,n as c,r as l,i as r,c as s};

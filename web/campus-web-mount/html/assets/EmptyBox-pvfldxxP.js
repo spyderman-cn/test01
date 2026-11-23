@@ -1,0 +1,1 @@
+import{ak as s,L as n,O as r,W as p,Q as a}from"./vue-BOD88iyj.js";const l={__name:"EmptyBox",props:{description:{type:String,default:"这里空空如也"}},setup(e){return(t,i)=>{const o=s("el-empty");return n(),r(o,{description:e.description,"image-size":110},{default:p(()=>[a(t.$slots,"default")]),_:3},8,["description"])}}};export{l as _};

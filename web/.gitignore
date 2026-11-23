@@ -6,3 +6,5 @@ dist-ssr
 .vite
 .tmp
 .shots
+campus-web*
+*.zip
